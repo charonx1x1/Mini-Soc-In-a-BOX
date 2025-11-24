@@ -1,0 +1,30 @@
+<!-- Local rules -->
+
+<!-- Modify it at your will. -->
+<!-- Copyright (C) 2015, Wazuh Inc. -->
+
+<group name="local,syscheck,ssh,">
+  <rule id="100210" level="10">
+    <if_group>syscheck</if_group>
+    <match>/etc/ssh/sshd_config</match>
+    <description>Modification du fichier de configuration SSH principal</description>
+    <group>syscheck,ssh,configuration_change,attack.t1562,</group>
+  </rule>
+
+  <rule id="100211" level="10">
+    <if_group>syscheck</if_group>
+    <match>/etc/ssh/sshd_config.d/</match>
+    <description>Modification du fichier de configuration SSH</description>
+    <group>syscheck,ssh,configuration_change,attack.t1562,</group>
+  </rule>
+
+</group>
+
+<group name="local,syslog,ufw,">
+  <rule id="100320" level="8">
+    <match>UFW BLOCK</match>
+    <description>UFW a bloque une connexion vers DPT $(dstport) depuis $(srcip)</description>
+    <group>ufw,firewall,network_scan,</group>
+  </rule>
+
+</group>
