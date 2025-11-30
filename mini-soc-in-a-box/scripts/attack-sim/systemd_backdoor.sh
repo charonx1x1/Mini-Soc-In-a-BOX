@@ -79,7 +79,7 @@ revert_changes(){
 status_service(){
   systemctl status "${SERVICE_NAME}.service" --no-pager -l || true 
   echo "------- systemd unit ----------"
-  systemctl cat "${SERVICE_NAME}.service || true 
+  systemctl cat "${SERVICE_NAME}.service" || true 
 }
 
 main(){
