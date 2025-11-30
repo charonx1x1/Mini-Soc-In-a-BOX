@@ -25,6 +25,14 @@
     <group>syscheck, cron, persistence,</group>
   </rule>
 
+  <rule id="100520" level="10">
+    <if_group>syscheck,</if_group>
+    <match>/systemd/system/</match>
+    <match>.service</match>
+    <description>Modification service systemd détectée (FIM)</description>
+    <group>syscheck,systemd,persistence,</group>
+  </rule>
+
 </group>
 
 <group name="local,syslog,ufw,">
