@@ -1,0 +1,38 @@
+<group name="zeek,ddos,">
+  <!-- Règle de base pour logs Zeek -->
+  <rule id="100910" level="0">
+    <decoded_as>json</decoded_as>
+    <description>Zeek network logs</description>
+  </rule>
+
+  <!-- Détection DDOS SYN flood -->
+  <rule id="100911" level="12">
+    <if_sid>100910</if_sid>
+    <field name="proto">tcp</field>
+    <field name="connection_state">S0</field>
+    <description>Zeek: SYN packet detected from $(srcip) to $(dstip):$(dstport)</description>
+    <group>zeek,ddos,reconnaissance,</group>
+  </rule>
+
+  <!-- Multiple SYN en peu de temps -->
+  <rule id="100912" level="15" frequency="50" timeframe="30">
+    <if_matched_sid>100911</if_matched_sid>
+    <same_source_ip />
+    <description>Zeek: DDOS SYN flood attack detected from $(srcip) (50+ SYN packets in 30s)</description>
+    <group>zeek,ddos,attack,</group>
+    <mitre>
+      <id>T1498</id>
+      <name>Network Denial of Service</name>
+      <tactic>Impact</tactic>
+    </mitre>
+  </rule>
+
+  <!-- High volume connections to same port -->
+  <rule id="100913" level="10" frequency="100" timeframe="60">
+    <if_sid>100910</if_sid>
+    <same_source_ip />
+    <same_dst_port />
+    <description>Zeek: High volume connections from $(srcip) to port $(dstport) (100+ in 60s)</description>
+    <group>zeek,ddos,suspicious,</group>
+  </rule>
+</group>
