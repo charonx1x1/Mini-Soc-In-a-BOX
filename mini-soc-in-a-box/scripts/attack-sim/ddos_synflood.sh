@@ -16,7 +16,7 @@ if [[ -z "$TARGET" ]]; then
 fi
 
 echo "[*] DDOS SYN flood attack against $TARGET:$PORT"
-echo "[*] Packets: $PACKETS | Rate: $packets/s"
+echo "[*] Packets: $PACKETS | Rate: $PACKETS/s"
 echo "[*] Starting in 3 seconds..."
 sleep 3
 
