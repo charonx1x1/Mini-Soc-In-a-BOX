@@ -1,0 +1,76 @@
+=== Mini-SOC Lab - Attack Simulation Suite ===
+Starting all 13 attack scenarios...
+
+[20:50:04] [SKIP] 01 - Discovery & Recon (script absent: /home/nad_att/scripts/attack-sim/attack-sim-01-discovery.sh)
+[20:50:04] [SKIP] 02 - Port Scanning (script absent: /home/nad_att/scripts/attack-sim/attack-sim-02-port-scanning.sh)
+[20:50:04] [SKIP] 03 - SSH Brute Force (script absent: /home/nad_att/scripts/attack-sim/attack-sim-03-ssh-brute-force.sh)
+[20:50:04] [RUN ] 04 - Web SQL Injection -> /home/nad_att/scripts/attack-sim/Web_Exploitation/attack-sim-04-web-sql-injection.sh
+[*] SQL injection simulation vers 192.168.64.7...
+  - payload: OR 1=1
+  - payload: UNION SELECT NULL
+  - payload: SLEEP(10)
+  - payload: 1; DROP TABLE users
+[+] SQL injection attack simulated
+[20:50:06] [DONE] 04 - Web SQL Injection (duration: 2s)
+
+[20:50:08] [RUN ] 05 - Web XSS -> /home/nad_att/scripts/attack-sim/Web_Exploitation/attack-sim-05-web-xss.sh
+[*] XSS simulation vers 192.168.64.7...
+  - payload XSS
+  - payload XSS
+  - payload XSS
+"[+] XSS attack simulated"
+[20:50:10] [DONE] 05 - Web XSS (duration: 2s)
+
+[20:50:12] [RUN ] 06 - Web Command Injection -> /home/nad_att/scripts/attack-sim/Web_Exploitation/attack-sim-06-web-command-injection.sh
+[*] Command injection simulation vers 192.168.64.7...
+  - cmd: whoami
+  - cmd: id
+  - cmd: ls /
+  - cmd: uname -a
+[+] Command injection attack simulated
+[20:50:14] [DONE] 06 - Web Command Injection (duration: 2s)
+
+[20:50:16] [RUN ] 07 - Web XXE Injection -> /home/nad_att/scripts/attack-sim/Web_Exploitation/attack-sim-07-web-xxe-injection.sh
+[*] XXE injection simulation vers 192.168.64.7...
+[+] XXE injection attack simulated
+[20:50:17] [DONE] 07 - Web XXE Injection (duration: 1s)
+
+[20:50:19] [RUN ] 08 - Web SSRF Injection -> /home/nad_att/scripts/attack-sim/Web_Exploitation/attack-sim-08-web-ssrf-injection.sh
+[*] SSRF injection simulation vers 192.168.64.7...
+  - SSRF vers http://localhost:8080
+  - SSRF vers http://169.254.169.254/latest/meta-data
+  - SSRF vers http://192.168.64.1
+[+] SSRF injection attack simulated
+[20:50:21] [DONE] 08 - Web SSRF Injection (duration: 2s)
+
+[20:50:23] [RUN ] 09 - Privilege Escalation -> /home/nad_att/scripts/attack-sim/Escalation/attack-sim-09-privilege-escalation.sh
+[*] Privilege escalation simulation on 192.168.64.7...
+"[+] Privilege escalation attack simulated"1~#!/bin/bash
+[*] Privilege escalation simulation on 192.168.64.7...
+"[+] Privilege escalation attack simulated"
+[20:50:26] [DONE] 09 - Privilege Escalation (duration: 3s)
+
+[20:50:28] [RUN ] 10 - Persistence Mechanisms -> /home/nad_att/scripts/attack-sim/Persistence/attack-sim-10-persistence-mechanisms.sh
+[*] Persistence simulation on 192.168.64.7...
+[+] Persistence attack simulated
+[20:50:30] [DONE] 10 - Persistence Mechanisms (duration: 2s)
+
+[20:50:32] [SKIP] 11 - Lateral Movement (script absent: /home/nad_att/scripts/attack-sim/attack-sim-11-lateral-movement.sh)
+[20:50:32] [RUN ] 12 - Defense Evasion -> /home/nad_att/scripts/attack-sim/Defense_Evasion/attack-sim-12-defense-evasion.sh
+[*] Lateral movement simulation depuis 192.168.64.9...
+  - tentative de mouvement latéral vers 192.168.64.7
+  - tentative de mouvement latéral vers 192.168.64.10
+  - tentative de mouvement latéral vers 192.168.64.20
+[+] Lateral movement attack simulated
+[20:50:34] [DONE] 12 - Defense Evasion (duration: 2s)
+
+[20:50:36] [RUN ] 13 - Data Exfiltration -> /home/nad_att/scripts/attack-sim/Data_Exfiltration/attack-sim-13-data-exfiltration.sh
+[*] Data exfiltration simulation from 192.168.64.7 to 8.8.8.8...
+[+] Data exfiltration attack simulated
+[20:50:38] [DONE] 13 - Data Exfiltration (duration: 2s)
+
+
+=== All attacks simulated ===
+Total duration: 36s
+Log file: /home/nad_att/scripts/attack-sim/logs/master-runner-2025-12-09-205004.log
+Check UI at http://localhost:5173 for real-time alerts
