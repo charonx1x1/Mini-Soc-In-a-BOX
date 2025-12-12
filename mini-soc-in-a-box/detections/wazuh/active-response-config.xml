@@ -1,0 +1,14 @@
+<!-- Ajouter dans /var/ossec/etc/ossec.conf -->
+
+<command>
+  <name>ddos-block</name>
+  <executable>ddos-block.sh</executable>
+  <expect>srcip</expect>
+</command>
+
+<active-response>
+  <disabled>no</disabled>
+  <command>ddos-block</command>
+  <location>local</location>
+  <rules_id>100912</rules_id>
+</active-response>
