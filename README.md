@@ -7,8 +7,6 @@ Mini SOC pédagogique : une plateforme de **détection** et **réponse** à inci
 > **XDR** : détection + réponse sur plusieurs sources (machines, réseau, etc.).  
 > **NSM** (Network Security Monitoring) : observation du trafic réseau pour repérer des activités suspectes.
 
-**Dépôt Git :** <LIEN_GIT>
-
 ---
 
 ## Objectif
@@ -20,7 +18,7 @@ Mini SOC pédagogique : une plateforme de **détection** et **réponse** à inci
 
 ## Architecture (lab)
 - **Host Docker** : Wazuh Manager + Indexer + Dashboard
-- **VM “victime”** : Wazuh Agent (logs système + FIM)
+- **VM “victime”** : Wazuh Agent 
 - **Capteurs réseau** : Zeek / Suricata (génèrent des événements réseau)
 - **VM “attaquant” (tests)** : exécute des scripts de simulation (environnement isolé)
 
@@ -35,7 +33,6 @@ Mini SOC pédagogique : une plateforme de **détection** et **réponse** à inci
 ---
 
 ## Structure du dépôt (exemple)
-> Ajuste selon ton repo réel.
 
 - `wazuh-docker/` : déploiement Docker Compose (single-node)
 - `config/` : conf Wazuh/agents/capteurs (si versionnée)
