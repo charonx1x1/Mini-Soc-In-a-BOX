@@ -1,0 +1,79 @@
+<!-- ===================================================================== -->
+<!--  CONTAINER MONITORING RULES                                          -->
+<!--  Ces règles permettent de surveiller l’état des conteneurs Docker     -->
+<!--  (ressources, santé) afin de détecter des anomalies opérationnelles   -->
+<!--  ou des comportements pouvant indiquer une attaque ou un déni de      -->
+<!--  service (DoS, crypto-mining, runaway process, etc.).                 -->
+<!-- ===================================================================== -->
+
+<group name="container,">
+
+  <!-- =============================== -->
+  <!--  CONTAINER RESOURCE MONITORING  -->
+  <!-- =============================== -->
+  <!-- Règle de base utilisée pour décoder et identifier les métriques     -->
+  <!-- de ressources des conteneurs Docker (CPU, mémoire, etc.).           -->
+
+  <!-- Règle générique : informations de ressources d’un conteneur -->
+  <rule id="100110" level="5">
+    <decoded_as>docker-container-resource</decoded_as>
+    <description>Docker: Container $(container_name) Resources</description>
+    <group>container_resource,</group>
+  </rule>
+  
+  <!-- Déclenche une alerte critique lorsque l’utilisation CPU ET mémoire -->
+  <!-- dépasse 80 %, pouvant indiquer une surcharge, un dysfonctionnement -->
+  <!-- applicatif ou une activité malveillante (DoS, crypto-mining).      -->
+  <rule id="100111" level="12">
+    <if_sid>100110</if_sid>
+    <field name="container_cpu_usage" type="pcre2">^(0*[8-9]\d|0*[1-9]\d{2,})</field>
+    <field name="container_memory_perc" type="pcre2">^(0*[8-9]\d|0*[1-9]\d{2,})</field>
+    <description>Docker: Container $(container_name) CPU usage ($(container_cpu_usage)) and memory usage ($(container_memory_perc)) is over 80%</description>
+    <group>container_resource,</group>
+  </rule>
+
+  <!-- Déclenche une alerte critique lorsque l’utilisation CPU seule -->
+  <!-- dépasse 80 %, indiquant une charge anormale ou un processus -->
+  <!-- incontrôlé à l’intérieur du conteneur.                     -->
+  <rule id="100112" level="12">
+    <if_sid>100110</if_sid>
+    <field name="container_cpu_usage" type="pcre2">^(0*[8-9]\d|0*[1-9]\d{2,})</field>
+    <description>Docker: Container $(container_name) CPU usage ($(container_cpu_usage)) is over 80%</description>
+    <group>container_resource,</group>
+  </rule>  
+  
+  <!-- Déclenche une alerte critique lorsque l’utilisation mémoire seule -->
+  <!-- dépasse 80 %, pouvant provoquer des crashes applicatifs ou un    -->
+  <!-- déni de service local.                                           -->
+  <rule id="100113" level="12">
+    <if_sid>100110</if_sid>
+    <field name="container_memory_perc" type="pcre2">^(0*[8-9]\d|0*[1-9]\d{2,})</field>
+    <description>Docker: Container $(container_name) memory usage ($(container_memory_perc)) is over 80%</description>
+    <group>container_resource,</group>
+  </rule>
+
+
+  <!-- =============================== -->
+  <!--  CONTAINER HEALTH MONITORING    -->
+  <!-- =============================== -->
+  <!-- Surveillance de l’état de santé des conteneurs Docker basée sur     -->
+  <!-- les health checks définis dans les images ou les orchestrateurs.    -->
+
+  <!-- Règle générique : état de santé d’un conteneur -->
+  <rule id="100115" level="5">
+    <decoded_as>docker-container-health</decoded_as>
+    <description>Docker: Container $(container_name) is $(container_health_status)</description>
+    <group>container_health,</group>
+  </rule>
+   
+  <!-- Déclenche une alerte critique lorsqu’un conteneur passe à l’état -->
+  <!-- "unhealthy", indiquant un service défaillant, une panne interne -->
+  <!-- ou une possible compromission applicative.                     -->
+  <rule id="100116" level="12">
+    <if_sid>100115</if_sid>
+    <field name="container_health_status">^unhealthy$</field>
+    <description>Docker: Container $(container_name) is $(container_health_status)</description>
+    <group>container_health,</group>
+  </rule>
+
+</group>
