@@ -196,3 +196,32 @@
   </rule>
 
 </group>
+
+
+<!-- ===================== -->
+<!--  Apache/Web    -->
+<!-- ===================== -->
+<group name="local,apache,web">
+
+  <!-- Détection d’une tentative d’injection SQL via la clause UNION SELECT -->
+  <rule id="100110" level="8">
+    <if_group>apache</if_group>
+    <match>UNION SELECT</match>
+    <description>Custom SQL injection (UNION SELECT)</description>
+  </rule>
+
+  <!-- Détection d’une tentative d’injection SQL classique de type "OR 1=1" -->
+  <rule id="100111" level="8">
+    <if_group>apache</if_group>
+    <match>OR 1=1</match>
+    <description>Custom SQL injection (OR 1=1)</description>
+  </rule>
+
+  <!-- Détection d’une tentative d’injection de commandes via paramètre HTTP -->
+  <rule id="100120" level="8">
+    <if_group>apache</if_group>
+    <match>cmd=</match>
+    <description>Custom command injection (cmd=)</description>
+  </rule>
+
+</group>
