@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -Eeuo pipefail 
+set -Eeuo pipefail
 
 require(){ command -v "$1" >/dev/null 2>&1 || { printf 'Missing dependency: %s\n' "$1" >&2; exit 127; }; }
 require hping3
