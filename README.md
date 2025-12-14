@@ -1,4 +1,4 @@
-# Mini SOC in a Box — Wazuh + Zeek + Suricata (Docker)
+#Mini SOC in a Box — Wazuh + Zeek + Suricata (Docker)
 
 Mini SOC pédagogique : une plateforme de **détection** et **réponse** à incident en labo, basée sur **Wazuh** (SIEM/XDR), enrichie par des capteurs **réseau** (Zeek/Suricata) et des règles/scripts personnalisés.
 
