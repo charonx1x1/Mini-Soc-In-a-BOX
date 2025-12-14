@@ -1,0 +1,76 @@
+<!-- ================================================= -->
+<!--  LOCAL DECODERS                                  -->
+<!--  Décodeurs personnalisés pour l’enrichissement   -->
+<!--  des logs et l’extraction de champs exploitables -->
+<!-- ================================================= -->
+
+<!--
+  Champs statiques supportés par les décodeurs :
+  - location   : source du log
+  - srcuser    : utilisateur source
+  - dstuser    : utilisateur cible
+  - user       : alias de dstuser
+  - srcip      : adresse IP source
+  - dstip      : adresse IP destination
+  - srcport    : port source
+  - dstport    : port destination
+  - protocol   : protocole utilisé
+  - id         : identifiant d’événement
+  - url        : URL ciblée
+  - action     : action effectuée (deny, drop, accept, etc.)
+  - status     : statut de l’événement (success, failure, etc.)
+  - extra_data : données complémentaires
+-->
+
+<!-- Exemple de décodeur local -->
+<decoder name="local_decoder_example">
+  <program_name>local_decoder_example</program_name>
+</decoder>
+
+<!-- ============================== -->
+<!--  DOCKER CONTAINER RESOURCES   -->
+<!-- ============================== -->
+
+<!-- Décodeur parent pour les métriques de ressources Docker -->
+<decoder name="docker-container-resource">
+  <program_name>^docker-container-resource</program_name>
+</decoder>
+
+<!-- Décodeur enfant : extraction CPU, mémoire et trafic réseau -->
+<decoder name="docker-container-resource-child">
+  <parent>docker-container-resource</parent>
+  <prematch>ossec: output: 'docker container stats':</prematch>
+  <regex>(\S+) (\S+) (\S+) (\S+) / (\S+) (\S+) (\S+) / (\S+)</regex>
+  <order>
+    container_id,
+    container_name,
+    container_cpu_usage,
+    container_memory_usage,
+    container_memory_limit,
+    container_memory_perc,
+    container_network_rx,
+    container_network_tx
+  </order>
+</decoder>
+
+<!-- ============================== -->
+<!--  DOCKER CONTAINER HEALTH      -->
+<!-- ============================== -->
+
+<!-- Décodeur parent pour l’état de santé des conteneurs -->
+<decoder name="docker-container-health">
+  <program_name>^docker-container-health</program_name>
+</decoder>
+
+<!-- Décodeur enfant : extraction de l’état de santé -->
+<decoder name="docker-container-health-child">
+  <parent>docker-container-health</parent>
+  <prematch>ossec: output: 'docker container ps':</prematch>
+  <regex offset="after_prematch" type="pcre2">(\S+) (\S+) (.*?) \((.*?)\)</regex>
+  <order>
+    container_image,
+    container_name,
+    container_uptime,
+    container_health_status
+  </order>
+</decoder>

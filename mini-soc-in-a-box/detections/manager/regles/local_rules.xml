@@ -1,0 +1,227 @@
+<!-- ===================================================================== -->
+<!--  LOCAL RULES - WAZUH                                                  -->
+<!--  Ces règles locales permettent d'étendre la détection Wazuh           -->
+<!--  selon les besoins du SOC (FIM, SSH, firewall, web, audit, etc.)       -->
+<!-- ===================================================================== -->
+
+
+<!-- ===================== -->
+<!--  FIM / SSH / SYSTEM  -->
+<!-- ===================== -->
+<!-- Détection des modifications de fichiers critiques liés à SSH, cron   -->
+<!-- et systemd afin d'identifier des tentatives de persistance ou         -->
+<!-- d'altération de configuration système.                                -->
+
+<group name="local,syscheck,ssh,">
+
+  <!-- Détecte toute modification du fichier principal de configuration SSH -->
+  <rule id="100210" level="10">
+    <if_group>syscheck</if_group>
+    <match>/etc/ssh/sshd_config</match>
+    <description>Modification du fichier de configuration SSH principal</description>
+    <group>syscheck,ssh,configuration_change,attack.t1562,</group>
+  </rule>
+
+  <!-- Détecte les changements dans les fichiers inclus de configuration SSH -->
+  <rule id="100211" level="10">
+    <if_group>syscheck</if_group>
+    <match>/etc/ssh/sshd_config.d/</match>
+    <description>Modification du fichier de configuration SSH</description>
+    <group>syscheck,ssh,configuration_change,attack.t1562,</group>
+  </rule>
+
+  <!-- Détecte toute modification dans les fichiers cron (mécanisme de persistance) -->
+  <rule id="100410" level="8">
+    <if_group>syscheck</if_group>
+    <match>/etc/cron.d/</match>
+    <description>Modification du fichier deamon de cron</description>
+    <group>syscheck, cron, persistence,</group>
+  </rule>
+
+  <!-- Détecte les modifications de services systemd, souvent utilisées pour la persistance -->
+  <rule id="100520" level="10">
+    <if_group>syscheck,</if_group>
+    <match>/systemd/system/</match>
+    <match>.service</match>
+    <description>Modification service systemd détectée (FIM)</description>
+    <group>syscheck,systemd,persistence,</group>
+  </rule>
+
+</group>
+
+
+<!-- ===================== -->
+<!--  FIREWALL / UFW      -->
+<!-- ===================== -->
+<!-- Surveillance des logs UFW afin d'identifier les connexions bloquées, -->
+<!-- typiquement associées à des scans réseau ou tentatives non autorisées -->
+
+<group name="local,syslog,ufw,">
+
+  <!-- Détecte un blocage UFW et extrait dynamiquement l'IP source et le port -->
+  <rule id="100320" level="8">
+    <match>UFW BLOCK</match>
+    <description>UFW a bloque une connexion vers DPT $(dstport) depuis $(srcip)</description>
+    <group>ufw,firewall,network_scan,</group>
+  </rule>
+
+  <!-- Exemple de règle ciblée sur une IP spécifique pour les échecs SSH -->
+  <rule id="100001" level="5">
+    <if_sid>5716</if_sid>
+    <srcip>1.1.1.1</srcip>
+    <description>sshd: authentication failed from IP 1.1.1.1.</description>
+    <group>authentication_failed,pci_dss_10.2.4,pci_dss_10.2.5,</group>
+  </rule>
+
+</group>
+
+
+<!-- ===================== -->
+<!--  AUTHENTIFICATION    -->
+<!-- ===================== -->
+<!-- Détection de tentatives de brute-force via PAM, basée sur la          -->
+<!-- corrélation d'échecs d'authentification dans une fenêtre temporelle   -->
+
+<group name="pam,syslog,local,">
+
+  <!-- Déclenche une alerte si 3 échecs d'authentification surviennent en 2 minutes -->
+  <rule id="120100" level="10" frequency="3" timeframe="120">
+    <if_matched_sid>5503</if_matched_sid>
+    <description>Possible password guess on $(dstuser): 3 failed logins in a short period of time</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+  </rule>
+
+</group>
+
+
+<!-- ===================== -->
+<!--  CONFIGURATION AGENT -->
+<!-- ===================== -->
+<!-- Surveillance des modifications du fichier de configuration Wazuh     -->
+<!-- afin de détecter des tentatives de désactivation ou d'évasion         -->
+
+<group name="restart,">
+
+  <!-- Détecte les changements sur le fichier ossec.conf -->
+  <rule id="100009" level="5">
+    <if_sid>550</if_sid>
+    <match>ossec.conf</match>
+    <description>Changes made to the agent configuration file - $(file)</description>
+  </rule>
+
+</group>
+
+
+<!-- ===================== -->
+<!--  TELER / WEB ATTACKS -->
+<!-- ===================== -->
+<!-- Règles dédiées à l'analyse des logs JSON produits par Teler afin de   -->
+<!-- détecter des attaques web, scans, bruteforce de répertoires et IOC    -->
+
+<group name="teler,">
+
+  <!-- Détection d'attaques web communes ou tentatives liées à des CVE -->
+  <rule id="100012" level="10">
+    <decoded_as>json</decoded_as>
+    <field name="category" type="pcre2">Common Web Attack(: .*)?|CVE-[0-9]{4}-[0-9]{4,7}</field>
+    <field name="request_uri" type="pcre2">\D.+|-</field>
+    <field name="remote_addr" type="pcre2">\d+.\d+.\d+.\d+|::1</field>
+    <mitre>
+      <id>T1210</id>
+    </mitre>
+    <description>teler detected $(category) against resource $(request_uri) from $(remote_addr)</description>
+  </rule>
+
+  <!-- Détection d'adresses IP, referrers ou crawlers malveillants -->
+  <rule id="100013" level="10">
+    <decoded_as>json</decoded_as>
+    <field name="category" type="pcre2">Bad (IP Address|Referrer|Crawler)</field>
+    <field name="request_uri" type="pcre2">\D.+|-</field>
+    <field name="remote_addr" type="pcre2">\d+.\d+.\d+.\d+|::1</field>
+    <mitre>
+      <id>T1590</id>
+    </mitre>
+    <description>teler detected $(category) against resource $(request_uri) from $(remote_addr)</description>
+  </rule>
+
+  <!-- Détection de bruteforce de répertoires (gobuster, dirsearch, etc.) -->
+  <rule id="100014" level="10">
+    <decoded_as>json</decoded_as>
+    <field name="category" type="pcre2">Directory Bruteforce</field>
+    <field name="request_uri" type="pcre2">\D.+|-</field>
+    <field name="remote_addr" type="pcre2">\d+.\d+.\d+.\d+|::1</field>
+    <mitre>
+      <id>T1595</id>
+    </mitre>
+    <description>teler detected $(category) against resource $(request_uri) from $(remote_addr)</description>
+  </rule>
+
+</group>
+
+
+<!-- ===================== -->
+<!--  THREAT INTEL        -->
+<!-- ===================== -->
+<!-- Corrélation des IP sources avec une blacklist externe (AlienVault)   -->
+
+<group name="attack,"> 
+
+  <rule id="100100" level="10"> 
+    <if_group>web|attack|attacks</if_group> 
+    <list field="srcip" lookup="address_match_key">etc/lists/blacklist-alienvault</list> 
+    <description>IP found in AlienVault database</description> 
+  </rule> 
+
+</group>
+
+
+<!-- ===================== -->
+<!--  PROCESS / AUDITD    -->
+<!-- ===================== -->
+<!-- Détection de l'exécution de processus potentiellement malveillants    -->
+<!-- via auditd (outils de scan, post-exploitation, scripts)               -->
+
+<group name="process,malicious,audit,">
+
+  <!-- Détecte l'exécution d'outils de scan ou d'interpréteurs suspects -->
+  <rule id="150501" level="10">
+    <if_sid>80700</if_sid> <!-- Auditd execve events -->
+    <field name="audit.exe">/usr/bin/nmap|/usr/bin/nc|/usr/bin/netcat|/usr/bin/python3|sleep</field>
+    <description>Suspicious process execution detected: $(audit.exe)</description>
+    <mitre>
+      <id>T1059</id>
+    </mitre>
+  </rule>
+
+</group>
+
+
+<!-- ===================== -->
+<!--  Apache/Web    -->
+<!-- ===================== -->
+<group name="local,apache,web">
+
+  <!-- Détection d’une tentative d’injection SQL via la clause UNION SELECT -->
+  <rule id="100110" level="8">
+    <if_group>apache</if_group>
+    <match>UNION SELECT</match>
+    <description>Custom SQL injection (UNION SELECT)</description>
+  </rule>
+
+  <!-- Détection d’une tentative d’injection SQL classique de type "OR 1=1" -->
+  <rule id="100111" level="8">
+    <if_group>apache</if_group>
+    <match>OR 1=1</match>
+    <description>Custom SQL injection (OR 1=1)</description>
+  </rule>
+
+  <!-- Détection d’une tentative d’injection de commandes via paramètre HTTP -->
+  <rule id="100120" level="8">
+    <if_group>apache</if_group>
+    <match>cmd=</match>
+    <description>Custom command injection (cmd=)</description>
+  </rule>
+
+</group>
