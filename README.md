@@ -89,12 +89,11 @@ docker compose up -d
 ---
 
 ## Contenu du dépôt (typique)
-- Déploiement **Wazuh Docker single-node**
 - Config Manager + config Agent
-- **Règles locales** (`local_rules.xml`) & **décodeurs** (Docker, Teler, etc.)
+- **Règles locales** (`local_rules.xml`) & **décodeurs**
 - Scripts **simulation d’attaques**
-- Scripts **Active Response** (natifs + personnalisés)
-- (Optionnel) Playbooks : guides analyste (procédure), sans exécution automatique
+- Scripts **Active Response**
+- Playbooks : guides analyste (procédure), sans exécution automatique
 
 ---
 
